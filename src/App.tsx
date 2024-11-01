@@ -68,7 +68,7 @@ interface PlayerWindowProps extends PlayerWindowContentProps {
 const PlayerWindow = ({ boom, setBoom, ...props }: PlayerWindowProps) => (
   <div
     className="w-full h-full place-content-center p-auto text-center text-[10vw]"
-    onMouseDown={() => {
+    onTouchStart={() => {
       if (props.state == "notReady" || props.state == "over" || boom > 0) {
         return;
       }
