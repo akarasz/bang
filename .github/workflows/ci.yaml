@@ -10,6 +10,9 @@ jobs:
   build-test-and-deploy:
     name: Build, Test and Deploy
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,18 +21,16 @@ jobs:
         with:
           node-version: "18"
           registry-url: https://npm.pkg.github.com/
-
       - name: Install dependencies
         run: npm ci
       - name: Build with ViteJS
         run: npm run build
-      - name: Setup AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
       - name: Sync files to S3 bucket
-        run: aws s3 sync dist ${{ secrets.S3_BUCKET }} --delete
+        run: aws s3 sync dist ${{ vars.S3_BUCKET_URI }} --delete
       - name: Invalidate CloudFront cache
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths '/*'
+        run: aws cloudfront create-invalidation --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} --paths '/*'
