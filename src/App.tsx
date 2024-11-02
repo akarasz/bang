@@ -13,7 +13,7 @@ const ReadyButton = ({
 
   return (
     <button
-      className="border-4 border-black rounded-2xl py-4 px-12 bg-white"
+      className="border-2 border-black rounded-xl py-2 px-6 bg-white text-xl self-center"
       onClick={onClick}
     >
       Ready?
@@ -31,7 +31,7 @@ interface PlayerWindowContentProps {
   dead: boolean;
 }
 
-const PlayerWindowContent = ({
+const OldPlayerWindowContent = ({
   state,
   ready,
   setReady,
@@ -60,6 +60,44 @@ const PlayerWindowContent = ({
   }
 };
 
+type HeadState = "init" | "winner" | "loser" | "triggerHappy";
+
+const randomWinnerEmoji = () => {
+  return ["😮‍💨", "😌", "💪"][Math.floor(Math.random() * 3)];
+};
+
+const randomLoserEmoji = () => {
+  return ["😵", "🪦", "☠️"][Math.floor(Math.random() * 3)];
+};
+
+const PlayerWindowContent = ({
+  headState = "init",
+  bang,
+  winnerInfo,
+  relax,
+}: {
+  headState?: HeadState;
+  bang?: boolean;
+  winnerInfo?: string;
+  relax?: boolean;
+}) => (
+  <div className="flex flex-row h-full">
+    <div className="w-1/3 content-center">
+      {headState == "init" && "🤠"}
+      {headState == "winner" && randomWinnerEmoji()}
+      {headState == "loser" && randomLoserEmoji()}
+      {headState == "triggerHappy" && "😰"}
+    </div>
+    <div className="w-2/3 content-center flex flex-col place-content-center gap-4">
+      {!relax && bang && <span>💥</span>}
+      {relax && winnerInfo && <span className="text-xl">{winnerInfo}</span>}
+      {relax && (
+        <ReadyButton isReady={false} onClick={() => console.log("click")} />
+      )}
+    </div>
+  </div>
+);
+
 interface PlayerWindowProps extends PlayerWindowContentProps {
   boom: number;
   setBoom: (val: number) => void;
@@ -67,7 +105,7 @@ interface PlayerWindowProps extends PlayerWindowContentProps {
 
 const PlayerWindow = ({ boom, setBoom, ...props }: PlayerWindowProps) => (
   <div
-    className="w-full h-full place-content-center p-auto text-center text-[10vw]"
+    className="w-full h-full place-content-center p-auto text-center text-[20vmin]"
     onTouchStart={() => {
       if (props.state == "notReady" || props.state == "over" || boom > 0) {
         return;
@@ -76,7 +114,13 @@ const PlayerWindow = ({ boom, setBoom, ...props }: PlayerWindowProps) => (
       setBoom(Date.now());
     }}
   >
-    <PlayerWindowContent alreadyBoom={boom > 0} {...props} />
+    <OldPlayerWindowContent alreadyBoom={boom > 0} {...props} />
+    {/* <PlayerWindowContent
+      headState="triggerHappy"
+      bang={false}
+      winnerInfo="RED won with 324ms"
+      relax={true}
+    /> */}
   </div>
 );
 
